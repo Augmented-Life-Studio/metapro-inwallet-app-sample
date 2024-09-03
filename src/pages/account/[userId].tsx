@@ -17,6 +17,38 @@ import {
 	UserDetailsTitle,
 } from '@/components/UserPage'
 
+/**
+ * Fetches user data from the MetaPro Protocol user service.
+ *
+ * This function makes an asynchronous HTTP GET request to the MetaPro Protocol user service API,
+ * retrieving the profile information for a specific user based on their user ID. The response
+ * is parsed as JSON and returned as a `User` object.
+ *
+ * @param {string} userId - The unique identifier of the user whose data is being fetched.
+ *
+ * @returns {Promise<User>} - A promise that resolves to the user's profile data as a `User` object.
+ *
+ * @throws {Error} - If the fetch operation fails, the promise may reject with an error indicating
+ * the failure of the request or the inability to parse the response.
+ *
+ * @example
+ * const userId = "123456789";
+ *
+ * fatchUserData(userId)
+ *   .then((user) => {
+ *     console.log('User data:', user);
+ *   })
+ *   .catch((error) => {
+ *     console.error('Error fetching user data:', error);
+ *   });
+ */
+const fatchUserData = async (userId: string): Promise<User> => {
+	const response = await fetch(
+		`https://test-api.metaproprotocol.com/ms/users-service/profile/${userId}`,
+	)
+	return (await response.json()) as User
+}
+
 const UserDetailsModal: React.FC<{user: User; closeModal: () => void}> = ({
 	user,
 	closeModal,
@@ -46,11 +78,7 @@ export default function Account() {
 		if (!params?.userId) return
 		const fetchUser = async () => {
 			try {
-				// Fetch user data from the API using the userId from the URL
-				const response = await fetch(
-					`https://test-api.metaproprotocol.com/ms/users-service/profile/${params?.userId}`,
-				)
-				const user = (await response.json()) as User
+				const user = await fatchUserData(params.userId as string)
 				setUser(user)
 			} catch (error) {
 				console.error(error)
@@ -74,24 +102,30 @@ export default function Account() {
 				/>
 			) : null}
 			<TopBar>
-				<SettingsButton
-					onClick={e => {
-						e.stopPropagation()
-						setIsModalOpen(prev => !prev)
-					}}
-				/>
-				<AccountBox>
-					<AvatarBox>
-						<Image
-							src={user?.personalDetails?.avatar || ''}
-							alt='avatar'
-							width={25}
-							height={25}
+				{loadingUser ? (
+					<>LOADING...</>
+				) : (
+					<>
+						<SettingsButton
+							onClick={e => {
+								e.stopPropagation()
+								setIsModalOpen(prev => !prev)
+							}}
 						/>
-					</AvatarBox>
+						<AccountBox>
+							<AvatarBox>
+								<Image
+									src={user?.personalDetails?.avatar || ''}
+									alt='avatar'
+									width={25}
+									height={25}
+								/>
+							</AvatarBox>
 
-					<p>{user?.personalDetails?.username || 'Your nickname'}</p>
-				</AccountBox>
+							<p>{user?.personalDetails?.username || 'Your nickname'}</p>
+						</AccountBox>
+					</>
+				)}
 			</TopBar>
 		</PageWrapper>
 	)

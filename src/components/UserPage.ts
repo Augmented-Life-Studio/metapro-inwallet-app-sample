@@ -1,6 +1,7 @@
 import styled from 'styled-components'
+import {DesktopBorder} from '.'
 
-export const PageWrapper = styled.div`
+export const PageWrapper = styled(DesktopBorder)`
 	display: flex;
 	flex-direction: column;
 	background-image: url('https://metaprotocolresources.blob.core.windows.net/metapro-demo/userPage.png');
