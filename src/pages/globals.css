@@ -1,3 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Knewave&display=swap');
+
+
+body {
+  font-family: 'Knewave', cursive;
+}
+
 :root {
   --max-width: 1100px;
   --border-radius: 12px;
