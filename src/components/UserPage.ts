@@ -39,6 +39,7 @@ export const SettingsCloseButton = styled.div`
 	top: -20px;
 	right: -20px;
 	cursor: pointer;
+	z-index: 101;
 `
 
 export const UseNftButton = styled.div`

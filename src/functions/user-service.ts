@@ -1,5 +1,5 @@
 import {CreateOrLoginResponse, CheckWalletResponse, User} from '@/config/types'
-import {Web3Provider} from '@ethersproject/providers'
+import {ExternalProvider, Web3Provider} from '@ethersproject/providers'
 
 /**
  * Logs in or creates a user account based on their Web3 wallet address.
@@ -127,21 +127,39 @@ export const fatchUserData = async (userId: string): Promise<User> => {
 }
 
 export const editUser = async (user: User) => {
-	const response = await fetch(
-		`https://test-api.metaproprotocol.com/ms/users-service/update`,
-		{
-			method: 'PATCH',
-			headers: {
-				Accept: '*/*',
-				'Content-Type': 'application/json',
-				'x-account-userid': user.userId,
-				Authorization: `${localStorage.getItem('accessToken')}`,
+	try {
+		const response = await fetch(
+			`https://test-api.metaproprotocol.com/ms/users-service/update`,
+			{
+				method: 'PATCH',
+				headers: {
+					Accept: '*/*',
+					'Content-Type': 'application/json',
+					'x-account-userid': user.userId,
+					Authorization: `${localStorage.getItem('accessToken')}`,
+				},
+				body: JSON.stringify({
+					personalDetails: user.personalDetails,
+					socialMedia: [],
+				}),
 			},
-			body: JSON.stringify({
-				personalDetails: user.personalDetails,
-				socialMedia: [],
-			}),
-		},
-	)
-	return await response.json()
+		)
+
+		if (response.status === 401) {
+			// Since the access token is expired, we need to log in again
+			throw new Error('Unauthorized')
+		}
+		return await response.json()
+	} catch (error: any) {
+		if (error.message === 'Unauthorized') {
+			const loggedUser = await loginOrCreateAccount(
+				user.addresses[0].wallet,
+				true,
+				new Web3Provider(window.ethereum as ExternalProvider),
+			)
+			const accessToken = loggedUser.token.accessToken
+			localStorage.setItem('accessToken', accessToken)
+			await editUser(user)
+		}
+	}
 }

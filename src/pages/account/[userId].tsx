@@ -39,7 +39,6 @@ const UserDetailsModal: React.FC<{
 		if (!user?.addresses[0]?.wallet) return
 		const fetchNftList = async () => {
 			const nftList = await fetchWalletNftMetaAssets(user.addresses[0].wallet)
-			console.log(nftList)
 			setNftList(nftList.results)
 		}
 		fetchNftList()
