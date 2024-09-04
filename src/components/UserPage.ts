@@ -8,6 +8,7 @@ export const PageWrapper = styled(DesktopBorder)`
 	background-size: cover;
 	background-position: center;
 	background-repeat: no-repeat;
+	z-index: 1;
 
 	/* justify-content: center;
 	align-items: center; */
@@ -37,6 +38,22 @@ export const SettingsCloseButton = styled.div`
 	position: absolute;
 	top: -20px;
 	right: -20px;
+	cursor: pointer;
+`
+
+export const UseNftButton = styled.div`
+	background-image: url('https://metaprotocolresources.blob.core.windows.net/metapro-demo/UseNftAsset.png');
+	background-size: cover;
+	width: 114px;
+	height: 45px;
+	cursor: pointer;
+`
+
+export const TrashButton = styled.div`
+	background-image: url('https://metaprotocolresources.blob.core.windows.net/metapro-demo/TrashCan.png');
+	background-size: cover;
+	width: 56px;
+	height: 45px;
 	cursor: pointer;
 `
 
@@ -71,6 +88,7 @@ export const ModalWrapper = styled.div`
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
+	z-index: 100;
 `
 
 export const ModalContent = styled.div`
@@ -107,4 +125,27 @@ export const AvatarBox = styled.div`
 	left: -10px;
 	width: 25px;
 	height: 25px;
+`
+
+export const FlexRow = styled.div`
+	display: flex;
+	align-items: center;
+`
+
+export const FlexColumn = styled.div`
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+`
+
+export const StyledButton = styled.button`
+	height: 46px;
+	border-radius: 10px;
+	border: none;
+	padding: 0 20px;
+	cursor: pointer;
+	// when hover on button change background color
+	&:hover {
+		background-color: #ffbb01;
+	}
 `

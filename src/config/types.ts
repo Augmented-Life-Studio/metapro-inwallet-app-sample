@@ -69,3 +69,23 @@ export interface CheckWalletResponse {
 	hasExternalAccount: boolean
 	rulesCheckbox: boolean
 }
+export interface LeaderboardTotalScoreResponse {
+	_id: string
+	scoreTotalId: string
+	leaderboardId: string
+	userId: string
+	currentRoundData: {
+		score: number
+		diamonds: number
+		jumps: number
+		time: number
+	}
+	totalRoundData: {
+		score: number
+		diamonds: number
+		jumps: number
+		time: number
+	}
+	createdAt: string
+	updatedAt: string
+}
