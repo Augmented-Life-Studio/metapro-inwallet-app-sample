@@ -192,3 +192,19 @@ export const editUser = async (user: User) => {
 		}
 	}
 }
+
+export const fetchUsersProfiles = async (
+	userIds: string[],
+): Promise<{results: User[]; count: number}> => {
+	const requestParams = new URLSearchParams({limit: '99999'})
+
+	userIds.forEach(userId => {
+		requestParams.append('userIds', userId)
+	})
+
+	const usersResponse = await fetch(
+		`${process.env.NEXT_PUBLIC_USER_SERVICE_URL}/profiles?${requestParams}`,
+	)
+
+	return await usersResponse.json()
+}

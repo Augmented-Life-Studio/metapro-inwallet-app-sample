@@ -4,7 +4,7 @@ import {DesktopBorder} from '.'
 export const PageWrapper = styled(DesktopBorder)`
 	display: flex;
 	flex-direction: column;
-	background-image: url('https://metaprotocolresources.blob.core.windows.net/metapro-demo/userPage.png');
+	background-image: url('https://metaprotocolresources.blob.core.windows.net/metapro-demo/UserPage.png');
 	background-size: cover;
 	background-position: center;
 	background-repeat: no-repeat;
@@ -149,4 +149,21 @@ export const StyledButton = styled.button`
 	&:hover {
 		background-color: #ffbb01;
 	}
+`
+
+export const PointsButton = styled.div<{type: 'ADD' | 'REDUCE'}>`
+	background-image: url('https://metaprotocolresources.blob.core.windows.net/metapro-demo/${props =>
+		props.type === 'ADD' ? 'AddButton' : 'ReduceButton'}.png');
+	background-size: cover;
+	width: 46px;
+	height: 40px;
+	cursor: pointer;
+`
+
+export const LeaderboardButton = styled.div`
+	background-image: url('https://metaprotocolresources.blob.core.windows.net/metapro-demo/LeaderboardButton.png');
+	background-size: cover;
+	width: 252px;
+	height: 56px;
+	cursor: pointer;
 `

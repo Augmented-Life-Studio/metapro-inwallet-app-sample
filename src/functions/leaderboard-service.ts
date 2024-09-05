@@ -17,7 +17,7 @@ import {LeaderboardTotalScoreResponse} from '@/config/types'
  * @example
  * const userId = "123456789";
  *
- * fetchLeaderboardPoints(userId)
+ * fetchLeaderboardUserPoints(userId)
  *   .then((leaderboardData) => {
  *     console.log('User leaderboard points:', leaderboardData);
  *   })
@@ -25,7 +25,7 @@ import {LeaderboardTotalScoreResponse} from '@/config/types'
  *     console.error('Error fetching leaderboard points:', error);
  *   });
  */
-export const fetchLeaderboardPoints = async (
+export const fetchLeaderboardUserPoints = async (
 	userId: string,
 ): Promise<LeaderboardTotalScoreResponse> => {
 	const response = await fetch(
@@ -58,7 +58,7 @@ export const fetchLeaderboardPoints = async (
  * const userId = "123456789";
  * const points = 150;
  *
- * editLeaderboardPoints(userId, points)
+ * editLeaderboardUserPoints(userId, points)
  *   .then((updatedData) => {
  *     console.log('Leaderboard points updated:', updatedData);
  *   })
@@ -66,7 +66,10 @@ export const fetchLeaderboardPoints = async (
  *     console.error('Error updating leaderboard points:', error);
  *   });
  */
-export const editLeaderboardPoints = async (userId: string, points: number) => {
+export const editLeaderboardUserPoints = async (
+	userId: string,
+	points: number,
+) => {
 	const response = await fetch(
 		`${process.env.NEXT_PUBLIC_LEADERBOARD_SERVICE_URL}/score-total/${userId}`,
 		{
@@ -84,6 +87,36 @@ export const editLeaderboardPoints = async (userId: string, points: number) => {
 					score: points,
 				},
 			}),
+		},
+	)
+	return await response.json()
+}
+
+export const fetchLeaderboardPoints = async (
+	params:
+		| {
+				limit?: number
+				minBalance?: number
+				maxBalance?: number
+		  }
+		| undefined,
+): Promise<LeaderboardTotalScoreResponse[]> => {
+	const requestParams = new URLSearchParams({
+		limit: params?.limit ? params?.limit.toString() : '20',
+		...(params?.minBalance && {minBalance: params.minBalance.toString()}),
+		...(params?.maxBalance && {maxBalance: params.maxBalance.toString()}),
+	}).toString()
+
+	console.log(process.env.NEXT_PUBLIC_LEADERBOARD_API_KEY)
+
+	const response = await fetch(
+		`${process.env.NEXT_PUBLIC_LEADERBOARD_SERVICE_URL}/score-total/leaderboard/${process.env.NEXT_PUBLIC_LEADERBOARD_ID}?${requestParams}`,
+		{
+			headers: {
+				Accept: '*/*',
+				'Content-Type': 'application/json',
+				leaderboardApiKey: `${process.env.NEXT_PUBLIC_LEADERBOARD_API_KEY}`,
+			},
 		},
 	)
 	return await response.json()

@@ -4,144 +4,31 @@ import {useParams} from 'next/navigation'
 import {User} from '@/config/types'
 import Image from 'next/image'
 import {
-	ModalWrapper,
-	ModalContent,
-	SettingsCloseButton,
-	UserDetails,
 	PageWrapper,
 	TopBar,
 	SettingsButton,
 	AccountBox,
 	AvatarBox,
-	UserDetailsTitle,
 	FlexRow,
 	FlexColumn,
-	StyledButton,
-	UseNftButton,
-	TrashButton,
+	PointsButton,
+	LeaderboardButton,
 } from '@/components/UserPage'
-import {fetchWalletNftMetaAssets} from '@/functions/nft-service'
-import {editUser, fatchUserData} from '@/functions/user-service'
+import {fatchUserData} from '@/functions/user-service'
 import {
-	fetchLeaderboardPoints,
-	editLeaderboardPoints,
+	fetchLeaderboardUserPoints,
+	editLeaderboardUserPoints,
 } from '@/functions/leaderboard-service'
-
-const UserDetailsModal: React.FC<{
-	user: User
-	closeModal: () => void
-	refetchUser: () => void
-}> = ({user, closeModal, refetchUser}) => {
-	const [nftList, setNftList] = useState([])
-	const [showNftList, setShowNftList] = useState(false)
-
-	useEffect(() => {
-		if (!user?.addresses[0]?.wallet) return
-		const fetchNftList = async () => {
-			const nftList = await fetchWalletNftMetaAssets(user.addresses[0].wallet)
-			setNftList(nftList.results)
-		}
-		fetchNftList()
-	}, [user?.addresses[0]?.wallet])
-
-	return (
-		<ModalWrapper onClick={e => e.stopPropagation()}>
-			<SettingsCloseButton onClick={closeModal} />
-			<ModalContent>
-				{showNftList ? (
-					<FlexColumn style={{padding: '22px', height: '100%'}}>
-						<FlexRow>
-							<div>Select NFTMA</div>
-							<div onClick={() => setShowNftList(false)}>BACK</div>
-						</FlexRow>
-						<div
-							style={{
-								display: 'flex',
-								flexWrap: 'wrap',
-								height: '100%',
-								overflowY: 'scroll',
-							}}
-						>
-							{nftList.map((nft: any) => (
-								<Image
-									src={nft.token.image || ''}
-									alt=''
-									width={88}
-									height={88}
-									style={{margin: '5px', borderRadius: '10px'}}
-									onClick={async () => {
-										const updatedUser = {
-											...user,
-											personalDetails: {
-												...user.personalDetails,
-												avatar: nft.token.image,
-											},
-										}
-										await editUser(updatedUser)
-										setShowNftList(false)
-										refetchUser()
-									}}
-								/>
-							))}
-						</div>
-					</FlexColumn>
-				) : (
-					<>
-						{user?.personalDetails?.avatar ? (
-							<Image
-								src={user?.personalDetails?.avatar || ''}
-								alt='avatar'
-								width={146}
-								height={146}
-								style={{borderRadius: '20px'}}
-							/>
-						) : (
-							<div
-								style={{
-									backgroundColor: 'gray',
-									width: '146px',
-									height: '146px',
-									borderRadius: '20px',
-								}}
-							></div>
-						)}
-						<FlexRow style={{margin: '10px 0 10px 0'}}>
-							<UseNftButton
-								onClick={() => setShowNftList(true)}
-								style={{marginRight: '10px'}}
-							/>
-							<TrashButton
-								onClick={async () => {
-									const updatedUser = {
-										...user,
-										personalDetails: {
-											...user.personalDetails,
-										},
-									}
-									delete updatedUser.personalDetails.avatar
-									await editUser(updatedUser)
-									setShowNftList(false)
-									refetchUser()
-								}}
-							/>
-						</FlexRow>
-						<UserDetailsTitle>Wallet address</UserDetailsTitle>
-						<UserDetails>{user?.addresses[0].wallet}</UserDetails>
-						<UserDetailsTitle>METAPRO ID</UserDetailsTitle>
-						<UserDetails>{user.userId}</UserDetails>
-					</>
-				)}
-			</ModalContent>
-		</ModalWrapper>
-	)
-}
+import {UserDetailsModal} from '@/components/UserDetailsModal'
+import {LeaderboardModal} from '@/components/LeaderboardModal'
 
 export default function Account() {
 	const params = useParams()
 
 	const [loadingUser, setLoadingUser] = useState(true)
 	const [user, setUser] = useState<User>()
-	const [isModalOpen, setIsModalOpen] = useState(false)
+	const [isUserModalOpen, setIsUserModalOpen] = useState(false)
+	const [isLeaderboardModalOpen, setIsLeaderboardModalOpen] = useState(false)
 	const [points, setPoints] = useState(0)
 
 	const fetchUser = async (userId: string) => {
@@ -158,7 +45,7 @@ export default function Account() {
 
 	const fetchPoints = async (userId: string) => {
 		try {
-			const points = await fetchLeaderboardPoints(userId)
+			const points = await fetchLeaderboardUserPoints(userId)
 			setPoints(points?.currentRoundData.score)
 			return points
 		} catch (error) {
@@ -176,15 +63,22 @@ export default function Account() {
 		<PageWrapper
 			onClick={e => {
 				e.stopPropagation()
-				if (isModalOpen) setIsModalOpen(false)
+				if (isUserModalOpen) setIsUserModalOpen(false)
 			}}
 		>
-			{isModalOpen && user ? (
+			{isUserModalOpen && user ? (
 				<UserDetailsModal
 					{...{
 						user,
-						closeModal: () => setIsModalOpen(false),
+						closeModal: () => setIsUserModalOpen(false),
 						refetchUser: () => fetchUser(user.userId),
+					}}
+				/>
+			) : null}
+			{isLeaderboardModalOpen ? (
+				<LeaderboardModal
+					{...{
+						closeModal: () => setIsLeaderboardModalOpen(false),
 					}}
 				/>
 			) : null}
@@ -196,7 +90,7 @@ export default function Account() {
 						<SettingsButton
 							onClick={e => {
 								e.stopPropagation()
-								setIsModalOpen(prev => !prev)
+								setIsUserModalOpen(prev => !prev)
 							}}
 						/>
 						<AccountBox>
@@ -226,30 +120,37 @@ export default function Account() {
 					</>
 				)}
 			</TopBar>
-			<FlexColumn>
-				<FlexRow style={{marginBottom: '20px'}}>TOTAL POINTS: {points}</FlexRow>
-				<FlexRow style={{justifyContent: 'center'}}>
-					<StyledButton
+			<FlexColumn
+				style={{
+					height: '100%',
+					justifyContent: 'flex-end',
+					paddingBottom: '80px',
+				}}
+			>
+				<FlexRow style={{marginBottom: '20px'}}>TOTAL POINTS</FlexRow>
+
+				<FlexRow style={{justifyContent: 'center', marginBottom: '20px'}}>
+					<PointsButton
 						onClick={async () => {
 							if (user) {
-								await editLeaderboardPoints(user.userId, -1)
+								await editLeaderboardUserPoints(user.userId, -1)
 								fetchPoints(user.userId)
 							}
 						}}
-					>
-						REDUCE POINT
-					</StyledButton>
-					<StyledButton
+						type='REDUCE'
+					/>
+					<FlexRow style={{margin: '0px 30px'}}> {points}</FlexRow>
+					<PointsButton
 						onClick={async () => {
 							if (user) {
-								await editLeaderboardPoints(user.userId, 1)
+								await editLeaderboardUserPoints(user.userId, 1)
 								fetchPoints(user.userId)
 							}
 						}}
-					>
-						ADD POINT
-					</StyledButton>
+						type='ADD'
+					/>
 				</FlexRow>
+				<LeaderboardButton onClick={() => setIsLeaderboardModalOpen(true)} />
 			</FlexColumn>
 		</PageWrapper>
 	)
