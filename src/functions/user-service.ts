@@ -1,4 +1,9 @@
-import {CreateOrLoginResponse, CheckWalletResponse, User} from '@/config/types'
+import {
+	CreateOrLoginResponse,
+	CheckWalletResponse,
+	User,
+	FetchUserProfilesParams,
+} from '@/config/types'
 import {ExternalProvider, Web3Provider} from '@ethersproject/providers'
 
 /**
@@ -193,14 +198,63 @@ export const editUser = async (user: User) => {
 	}
 }
 
+/**
+ * Fetches user profiles from the MetaPro Protocol user service.
+ *
+ * This function sends an HTTP GET request to retrieve multiple user profiles based on specified parameters.
+ * The parameters may include user IDs or wallet addresses, as well as other filtering options. The request
+ * parameters are appended to the query string, and the response contains a list of user profiles and a count
+ * of the results.
+ *
+ * @param {FetchUserProfilesParams} [params] - An object containing parameters to filter user profiles, such as `userIds` or `wallets`.
+ * By default, it includes empty arrays for `userIds` and `wallets`.
+ *
+ * @returns {Promise<{results: User[]; count: number}>} - A promise that resolves to an object containing the results of the user profiles (`results`)
+ * and the total count of matching profiles (`count`).
+ *
+ * @throws {Error} - If the fetch operation fails, the promise may reject with an error indicating the failure of the request.
+ *
+ * @example
+ * const params = {
+ *   userIds: ['12345', '67890'],
+ *   wallets: ['0xWalletAddress1', '0xWalletAddress2'],
+ * };
+ *
+ * fetchUsersProfiles(params)
+ *   .then(({ results, count }) => {
+ *     console.log('Fetched profiles:', results);
+ *     console.log('Total count:', count);
+ *   })
+ *   .catch((error) => {
+ *     console.error('Error fetching user profiles:', error);
+ *   });
+ */
 export const fetchUsersProfiles = async (
-	userIds: string[],
+	params: FetchUserProfilesParams = {
+		userIds: [],
+		wallets: [],
+	} as FetchUserProfilesParams,
 ): Promise<{results: User[]; count: number}> => {
-	const requestParams = new URLSearchParams({limit: '99999'})
+	const requestParams = new URLSearchParams()
 
-	userIds.forEach(userId => {
-		requestParams.append('userIds', userId)
+	Object.entries(params).forEach(([key, value]) => {
+		if (key === 'userIds' || key === 'wallets') return
+		if (value) {
+			requestParams.append(key, value)
+		}
 	})
+
+	if (params.userIds) {
+		params.userIds.forEach(userId => {
+			requestParams.append('userIds', userId)
+		})
+	}
+
+	if (params.wallets) {
+		params.wallets.forEach(wallet => {
+			requestParams.append('wallets', wallet)
+		})
+	}
 
 	const usersResponse = await fetch(
 		`${process.env.NEXT_PUBLIC_USER_SERVICE_URL}/profiles?${requestParams}`,

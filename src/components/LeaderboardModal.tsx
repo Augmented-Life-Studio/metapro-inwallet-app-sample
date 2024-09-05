@@ -34,15 +34,17 @@ export const LeaderboardModal: React.FC<{
 	useEffect(() => {
 		const fetchLeaderboardUsers = async () => {
 			const leaderboardScoresResponse = await fetchLeaderboardPoints({})
-			const scoresUsers = await fetchUsersProfiles(
-				leaderboardScoresResponse.map(score => score.userId),
-			)
-			const usersWithScores = scoresUsers.results.map(user => ({
-				...user,
-				score: leaderboardScoresResponse.find(
-					score => score.userId === user.userId,
-				)?.currentRoundData.score,
-			}))
+			const scoresUsers = await fetchUsersProfiles({
+				userIds: leaderboardScoresResponse.map(score => score.userId),
+			})
+			const usersWithScores = scoresUsers.results
+				.map(user => ({
+					...user,
+					score: leaderboardScoresResponse.find(
+						score => score.userId === user.userId,
+					)?.currentRoundData.score,
+				}))
+				.sort((a, b) => (b.score || 0) - (a.score || 0))
 
 			setLeaderboardScores(usersWithScores)
 		}

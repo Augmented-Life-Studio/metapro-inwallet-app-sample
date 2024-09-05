@@ -37,7 +37,7 @@ export const UserDetailsModal: React.FC<{
 			<SettingsCloseButton onClick={closeModal} />
 			<ModalContent>
 				{showNftList ? (
-					<FlexColumn style={{padding: '22px', height: '100%'}}>
+					<FlexColumn style={{padding: '22px', height: '100%', width: '100%'}}>
 						<FlexRow>
 							<div>Select NFTMA</div>
 							<div onClick={() => setShowNftList(false)}>BACK</div>
@@ -47,6 +47,7 @@ export const UserDetailsModal: React.FC<{
 								display: 'flex',
 								flexWrap: 'wrap',
 								height: '100%',
+								width: '100%',
 								overflowY: 'scroll',
 							}}
 						>

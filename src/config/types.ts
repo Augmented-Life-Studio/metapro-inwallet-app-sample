@@ -89,3 +89,10 @@ export interface LeaderboardTotalScoreResponse {
 	createdAt: string
 	updatedAt: string
 }
+
+export interface FetchUserProfilesParams {
+	skip?: number
+	limit?: number
+	wallets?: string[]
+	userIds?: string[]
+}
