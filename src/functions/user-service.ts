@@ -31,10 +31,10 @@ export const loginOrCreateAccount = async (
 	if (!provider) {
 		throw new Error('Provider not found')
 	}
-	// Create get request to https://api.metaproprotocol.com/users-service/auth/signature/hash to get hash
+	// Create get request to USER SERVICE to get hash
 	// Headers should include x-account-wallet with the account address
 	const hashResponse = await fetch(
-		'https://test-api.metaproprotocol.com/ms/users-service/auth/signature/hash',
+		`${process.env.NEXT_PUBLIC_USER_SERVICE_URL}/auth/signature/hash`,
 		{
 			headers: {
 				'x-account-wallet': account,
@@ -48,7 +48,7 @@ export const loginOrCreateAccount = async (
 		account,
 	])
 	const createOrLoginAccountRequest = await fetch(
-		'https://test-api.metaproprotocol.com/ms/users-service/v2/auth/web3/login',
+		`${process.env.NEXT_PUBLIC_USER_SERVICE_URL}/v2/auth/web3/login`,
 		{
 			method: 'POST',
 			headers: {
@@ -71,7 +71,7 @@ export const loginOrCreateAccount = async (
 /**
  * Checks if a user exists based on their account address.
  *
- * This function makes an asynchronous request to the MetaProtocol API
+ * This function makes an asynchronous request to the matapro API
  * to determine if the user associated with the given account address exists.
  *
  * @param {string} account - The account address of the user to check.
@@ -88,14 +88,14 @@ export const checkIfUserExists = async (
 	account: string,
 ): Promise<CheckWalletResponse> => {
 	const checkAccountRequest = await fetch(
-		`https://test-api.metaproprotocol.com/ms/users-service/auth/check/wallet/${account}?projectId=${process.env.NEXT_PUBLIC_PROJECT_ID}`,
+		`${process.env.NEXT_PUBLIC_USER_SERVICE_URL}/auth/check/wallet/${account}?projectId=${process.env.NEXT_PUBLIC_PROJECT_ID}`,
 	)
 	const checkWalletResponse = (await checkAccountRequest.json()) as CheckWalletResponse
 	return checkWalletResponse
 }
 
 /**
- * Fetches user data from the MetaPro Protocol user service.
+ * Fetches user data from the metapro Protocol user service.
  *
  * This function makes an asynchronous HTTP GET request to the MetaPro Protocol user service API,
  * retrieving the profile information for a specific user based on their user ID. The response
@@ -121,15 +121,44 @@ export const checkIfUserExists = async (
  */
 export const fatchUserData = async (userId: string): Promise<User> => {
 	const response = await fetch(
-		`https://test-api.metaproprotocol.com/ms/users-service/profile/${userId}`,
+		`${process.env.NEXT_PUBLIC_USER_SERVICE_URL}/profile/${userId}`,
 	)
 	return (await response.json()) as User
 }
 
+/**
+ * Edits and updates user profile information in the metapro Protocol user service.
+ *
+ * This function sends an HTTP PATCH request to the MetaPro Protocol user service API to
+ * update a user's profile details. The request includes user-specific data in the headers
+ * and the request body. If the access token is expired (indicated by a 401 status),
+ * the function handles re-authentication by logging in again and retrying the update.
+ *
+ * @param {User} user - The `User` object containing the updated profile details to be submitted.
+ *
+ * @returns {Promise<any>} - A promise that resolves to the response from the API, typically the updated user profile data.
+ *
+ * @throws {Error} - If the access token is expired, an `Unauthorized` error is thrown, triggering a login process.
+ *
+ * @example
+ * const user = {
+ *   userId: "123456789",
+ *   personalDetails: { name: "John Doe", email: "john.doe@example.com" },
+ *   addresses: [{ wallet: "0xYourWalletAddress" }],
+ * };
+ *
+ * editUser(user)
+ *   .then((updatedUser) => {
+ *     console.log('User updated:', updatedUser);
+ *   })
+ *   .catch((error) => {
+ *     console.error('Error updating user:', error);
+ *   });
+ */
 export const editUser = async (user: User) => {
 	try {
 		const response = await fetch(
-			`https://test-api.metaproprotocol.com/ms/users-service/update`,
+			`${process.env.NEXT_PUBLIC_USER_SERVICE_URL}/update`,
 			{
 				method: 'PATCH',
 				headers: {
