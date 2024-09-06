@@ -23,6 +23,8 @@ export const UserDetailsModal: React.FC<{
 	const [nftList, setNftList] = useState([])
 	const [showNftList, setShowNftList] = useState(false)
 
+	const userAddresses = user?.addresses
+
 	useEffect(() => {
 		if (!user?.addresses[0]?.wallet) return
 		const fetchNftList = async () => {
@@ -30,7 +32,7 @@ export const UserDetailsModal: React.FC<{
 			setNftList(nftList.results)
 		}
 		fetchNftList()
-	}, [user?.addresses[0]?.wallet])
+	}, [userAddresses])
 
 	return (
 		<ModalWrapper onClick={e => e.stopPropagation()}>
@@ -53,6 +55,7 @@ export const UserDetailsModal: React.FC<{
 						>
 							{nftList.map((nft: any) => (
 								<Image
+									key={nft.token?._tokenId}
 									src={nft.token.image || ''}
 									alt=''
 									width={88}
