@@ -21,6 +21,7 @@ import {
 } from '@/functions/leaderboard-service'
 import {UserDetailsModal} from '@/components/UserDetailsModal'
 import {LeaderboardModal} from '@/components/LeaderboardModal'
+import {MintingModal} from '@/components/MintingModal'
 
 export default function Account() {
 	const params = useParams()
@@ -29,6 +30,7 @@ export default function Account() {
 	const [user, setUser] = useState<User>()
 	const [isUserModalOpen, setIsUserModalOpen] = useState(false)
 	const [isLeaderboardModalOpen, setIsLeaderboardModalOpen] = useState(false)
+	const [isMintingModalOpen, setIsMintingModalOpen] = useState(false)
 	const [points, setPoints] = useState(0)
 
 	const fetchUser = async (userId: string) => {
@@ -75,10 +77,10 @@ export default function Account() {
 					}}
 				/>
 			) : null}
-			{isLeaderboardModalOpen ? (
-				<LeaderboardModal
+			{isMintingModalOpen ? (
+				<MintingModal
 					{...{
-						closeModal: () => setIsLeaderboardModalOpen(false),
+						closeModal: () => setIsMintingModalOpen(false),
 					}}
 				/>
 			) : null}
@@ -151,6 +153,7 @@ export default function Account() {
 					/>
 				</FlexRow>
 				<LeaderboardButton onClick={() => setIsLeaderboardModalOpen(true)} />
+				<LeaderboardButton onClick={() => setIsMintingModalOpen(true)} />
 			</FlexColumn>
 		</PageWrapper>
 	)

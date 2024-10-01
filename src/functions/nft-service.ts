@@ -30,3 +30,10 @@ export const fetchWalletNftMetaAssets = async (walletAddress: string) => {
 	)
 	return await response.json()
 }
+
+export const fetchNftByContractAddress = async (contractAddress: string) => {
+	const response = await fetch(
+		`${process.env.NEXT_PUBLIC_NFT_SERVICE_URL}/v1/tokens?address=${contractAddress}`,
+	)
+	return await response.json()
+}
