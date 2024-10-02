@@ -112,7 +112,7 @@ export const MintingModal: React.FC<{
 					) : (
 						<>
 							{nftList.map((nft: any) => (
-								<FlexColumn>
+								<FlexColumn key={nft.id}>
 									<Image
 										key={nft.token?._tokenId}
 										src={nft.token.image || ''}
