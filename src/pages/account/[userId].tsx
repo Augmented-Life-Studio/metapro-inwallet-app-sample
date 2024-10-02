@@ -13,6 +13,7 @@ import {
 	FlexColumn,
 	PointsButton,
 	LeaderboardButton,
+	MintTokensButton,
 } from '@/components/UserPage'
 import {fatchUserData} from '@/functions/user-service'
 import {
@@ -22,16 +23,35 @@ import {
 import {UserDetailsModal} from '@/components/UserDetailsModal'
 import {LeaderboardModal} from '@/components/LeaderboardModal'
 import {MintingModal} from '@/components/MintingModal'
+import {useRouter} from 'next/router'
+
+enum ModalType {
+	USER = 'user',
+	LEADERBOARD = 'leaderboard',
+	MINTING = 'minting',
+}
 
 export default function Account() {
 	const params = useParams()
+	const {push} = useRouter()
 
 	const [loadingUser, setLoadingUser] = useState(true)
 	const [user, setUser] = useState<User>()
-	const [isUserModalOpen, setIsUserModalOpen] = useState(false)
-	const [isLeaderboardModalOpen, setIsLeaderboardModalOpen] = useState(false)
-	const [isMintingModalOpen, setIsMintingModalOpen] = useState(false)
 	const [points, setPoints] = useState(0)
+
+	const [modalState, setModalState] = useState<Record<ModalType, boolean>>({
+		[ModalType.USER]: false,
+		[ModalType.LEADERBOARD]: false,
+		[ModalType.MINTING]: false,
+	})
+
+	// Lead user to home page if account is changed
+	useEffect(() => {
+		if (!window.ethereum) return
+		window.ethereum.on('accountsChanged', async (accounts: string[]) => {
+			push('/')
+		})
+	}, [])
 
 	const fetchUser = async (userId: string) => {
 		try {
@@ -61,26 +81,72 @@ export default function Account() {
 		fetchPoints(params?.userId as string)
 	}, [params?.userId])
 
+	const triggerModal = (event: any) => {
+		const type = event.target.id as ModalType
+		event.stopPropagation()
+		setModalState(prev => {
+			let state = prev as Record<ModalType, boolean>
+			// If modal to trigger is closed we want to close another modals and open the one we want
+			Object.values(ModalType).forEach(key => {
+				if (key !== type) state[key.toLowerCase() as ModalType] = false
+				else state[type] = !prev[type]
+			})
+			return {
+				...prev,
+				...state,
+			}
+		})
+	}
+
+	const closeModals = () => {
+		setModalState(prev => ({
+			...prev,
+			[ModalType.USER]: false,
+			[ModalType.LEADERBOARD]: false,
+			[ModalType.MINTING]: false,
+		}))
+	}
+
 	return (
 		<PageWrapper
 			onClick={e => {
 				e.stopPropagation()
-				if (isUserModalOpen) setIsUserModalOpen(false)
+				// Close all modals on click
+				closeModals()
 			}}
 		>
-			{isUserModalOpen && user ? (
+			{modalState[ModalType.USER] && user ? (
 				<UserDetailsModal
 					{...{
 						user,
-						closeModal: () => setIsUserModalOpen(false),
+						closeModal: () =>
+							setModalState(prev => ({
+								...prev,
+								[ModalType.USER]: false,
+							})),
 						refetchUser: () => fetchUser(user.userId),
 					}}
 				/>
 			) : null}
-			{isMintingModalOpen ? (
+			{modalState[ModalType.LEADERBOARD] ? (
+				<LeaderboardModal
+					{...{
+						closeModal: () =>
+							setModalState(prev => ({
+								...prev,
+								[ModalType.LEADERBOARD]: false,
+							})),
+					}}
+				/>
+			) : null}
+			{modalState[ModalType.MINTING] ? (
 				<MintingModal
 					{...{
-						closeModal: () => setIsMintingModalOpen(false),
+						closeModal: () =>
+							setModalState(prev => ({
+								...prev,
+								[ModalType.MINTING]: false,
+							})),
 					}}
 				/>
 			) : null}
@@ -89,12 +155,7 @@ export default function Account() {
 					<>LOADING...</>
 				) : (
 					<>
-						<SettingsButton
-							onClick={e => {
-								e.stopPropagation()
-								setIsUserModalOpen(prev => !prev)
-							}}
-						/>
+						<SettingsButton id={ModalType.USER} onClick={triggerModal} />
 						<AccountBox>
 							<AvatarBox>
 								{user?.personalDetails?.avatar ? (
@@ -152,8 +213,9 @@ export default function Account() {
 						type='ADD'
 					/>
 				</FlexRow>
-				<LeaderboardButton onClick={() => setIsLeaderboardModalOpen(true)} />
-				<LeaderboardButton onClick={() => setIsMintingModalOpen(true)} />
+				<LeaderboardButton id={ModalType.LEADERBOARD} onClick={triggerModal} />
+				<FlexRow style={{margin: '10px 0'}} />
+				<MintTokensButton id={ModalType.MINTING} onClick={triggerModal} />
 			</FlexColumn>
 		</PageWrapper>
 	)

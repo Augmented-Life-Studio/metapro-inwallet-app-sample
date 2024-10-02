@@ -167,3 +167,11 @@ export const LeaderboardButton = styled.div`
 	height: 56px;
 	cursor: pointer;
 `
+
+export const MintTokensButton = styled.div`
+	background-image: url('https://metaprotocolresources.blob.core.windows.net/metapro-demo/MintTokensButton.png');
+	background-size: cover;
+	width: 252px;
+	height: 56px;
+	cursor: pointer;
+`
