@@ -36,7 +36,8 @@ export default function Home() {
 					setChainId(network.chainId)
 					setAccount(localLowerCaseAccount)
 					window.ethereum.on('accountsChanged', async (accounts: string[]) => {
-						setAccount(accounts[0].toLowerCase())
+						const mainAccount = accounts[0]?.toLowerCase()
+						setAccount(mainAccount)
 					})
 					window.ethereum.on('chainChanged', async (chainId: string) => {
 						setChainId(parseInt(chainId, 16))
@@ -63,7 +64,7 @@ export default function Home() {
 				provider.removeAllListeners('chainChanged')
 			}
 		}
-	}, [])
+	}, [window.ethereum])
 
 	const handleMetaproLogin = async (): Promise<
 		CreateOrLoginResponse | undefined
@@ -109,7 +110,7 @@ export default function Home() {
 				)}
 			</RegulationsWrapper>
 			<LoginButton
-				// disabled={!provider || !rulesChecked}
+				disabled={!provider || !rulesChecked || !account}
 				onClick={async () => {
 					const user = await handleMetaproLogin()
 					if (user) {

@@ -22,16 +22,17 @@ export const RegulationsWrapper = styled.div`
 	display: flex;
 `
 
-export const LoginButton = styled.div`
+export const LoginButton = styled.div<{disabled: boolean}>`
 	background-image: url('https://metaprotocolresources.blob.core.windows.net/metapro-demo/LoginButton.png');
 	background-size: cover;
 	width: 300px;
 	height: 80px;
-	cursor: pointer;
 	width: 304.549px;
 	height: 100px;
 	flex-shrink: 0;
 	margin-top: 16px;
+	opacity: ${props => (props.disabled ? 0.5 : 1)};
+	cursor: ${props => (props.disabled ? 'not-allowed' : 'pointer')};
 `
 
 export const TransactionButton = styled.div`
