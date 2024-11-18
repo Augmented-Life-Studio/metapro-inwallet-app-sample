@@ -65,7 +65,10 @@ export const loginOrCreateAccount = async (
 				wallet: account,
 				signature,
 				rulesChecked, // This should be true if you have checked the rules
+				// The following values should be set in your environment variables
+				// When one of them is passed another one can not be missing
 				projectId: process.env.NEXT_PUBLIC_PROJECT_ID,
+				platformId: process.env.NEXT_PUBLIC_PLATFORM_ID,
 			}),
 		},
 	)

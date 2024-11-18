@@ -2,7 +2,7 @@
 import {useEffect, useState} from 'react'
 import {ExternalProvider, Web3Provider} from '@ethersproject/providers'
 import {useRouter} from 'next/router'
-import {CheckWalletResponse, CreateOrLoginResponse, User} from '@/config/types'
+import {CreateOrLoginResponse} from '@/config/types'
 import {
 	LoginButton,
 	PageWrapper,
@@ -36,7 +36,8 @@ export default function Home() {
 					setChainId(network.chainId)
 					setAccount(localLowerCaseAccount)
 					window.ethereum.on('accountsChanged', async (accounts: string[]) => {
-						setAccount(accounts[0].toLowerCase())
+						const mainAccount = accounts[0]?.toLowerCase()
+						setAccount(mainAccount)
 					})
 					window.ethereum.on('chainChanged', async (chainId: string) => {
 						setChainId(parseInt(chainId, 16))
@@ -109,7 +110,7 @@ export default function Home() {
 				)}
 			</RegulationsWrapper>
 			<LoginButton
-				// disabled={!provider || !rulesChecked}
+				disabled={!provider || !rulesChecked || !account}
 				onClick={async () => {
 					const user = await handleMetaproLogin()
 					if (user) {

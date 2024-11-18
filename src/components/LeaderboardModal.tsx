@@ -4,6 +4,7 @@ import {
 	SettingsCloseButton,
 	ModalContent,
 	FlexRow,
+	FlexColumn,
 } from './UserPage'
 import {fetchLeaderboardPoints} from '@/functions/leaderboard-service'
 import {fetchUsersProfiles} from '@/functions/user-service'
@@ -12,7 +13,7 @@ import Image from 'next/image'
 import styled from 'styled-components'
 
 const UserDetailsRow = styled(FlexRow)`
-	width: 80%;
+	width: 100%;
 	p {
 		text-overflow: ellipsis;
 		overflow: hidden;
@@ -62,25 +63,27 @@ export const LeaderboardModal: React.FC<{
 				}}
 			>
 				<FlexRow>LEADERBOARD</FlexRow>
-				{leaderboardScores.map((user, index) => (
-					<FlexRow
-						key={index}
-						style={{justifyContent: 'space-between', width: '100%'}}
-					>
-						<UserDetailsRow>
-							{index + 1}.
-							<Image
-								src={user.personalDetails?.avatar || ''}
-								width={32}
-								height={32}
-								alt='avatar'
-								style={{borderRadius: '30%', margin: '0px 15px'}}
-							></Image>
-							<p>{user.personalDetails?.username}</p>
-						</UserDetailsRow>
-						<FlexRow>{user.score} pkt</FlexRow>
-					</FlexRow>
-				))}
+				<FlexColumn style={{overflowY: 'scroll', width: '100%'}}>
+					{leaderboardScores.map((user, index) => (
+						<FlexRow
+							key={index}
+							style={{justifyContent: 'space-between', width: '100%'}}
+						>
+							<UserDetailsRow>
+								{index + 1}.
+								<Image
+									src={user.personalDetails?.avatar || ''}
+									width={32}
+									height={32}
+									alt='avatar'
+									style={{borderRadius: '30%', margin: '0px 15px'}}
+								></Image>
+								<p>{user.personalDetails?.username || user.userId}</p>
+								<FlexRow>{user.score} pkt</FlexRow>
+							</UserDetailsRow>
+						</FlexRow>
+					))}
+				</FlexColumn>
 			</ModalContent>
 		</ModalWrapper>
 	)
