@@ -64,7 +64,7 @@ export default function Home() {
 				provider.removeAllListeners('chainChanged')
 			}
 		}
-	}, [provider])
+	}, [])
 
 	const handleMetaproLogin = async (): Promise<
 		CreateOrLoginResponse | undefined
