@@ -2,7 +2,7 @@
 import {useEffect, useState} from 'react'
 import {ExternalProvider, Web3Provider} from '@ethersproject/providers'
 import {useRouter} from 'next/router'
-import {CheckWalletResponse, CreateOrLoginResponse, User} from '@/config/types'
+import {CreateOrLoginResponse} from '@/config/types'
 import {
 	LoginButton,
 	PageWrapper,
@@ -64,7 +64,7 @@ export default function Home() {
 				provider.removeAllListeners('chainChanged')
 			}
 		}
-	}, [])
+	}, [provider])
 
 	const handleMetaproLogin = async (): Promise<
 		CreateOrLoginResponse | undefined
